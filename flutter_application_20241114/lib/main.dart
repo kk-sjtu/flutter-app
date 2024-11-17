@@ -30,14 +30,24 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
+  var favorites = <WordPair>[];
+  var history = <WordPair>[];
 
+  void getLast() {
+  if (history.isNotEmpty) {
+    current = history.removeLast();
+    print('Current word pair: $current'); // 调试输出
+    notifyListeners();
+  } else {
+    print('History is empty'); // 调试输出
+  }
+}
   // ↓ Add this.
   void getNext() {
+    history.add(current);
     current = WordPair.random();
     notifyListeners();
   }
-
-  var favorites = <WordPair>[];
 
   void toggleFavorite() {
     if (favorites.contains(current)) {
@@ -70,17 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
         page = GeneratorPage();
         break;
       case 1:
-        page = FavoritesPage();  // 这个是什么意思？//
-        // 这个是一个占位符，用来占据空间，不显示任何内容。
-        // 这里的意思是，当selectedIndex为1时，显示一个占位符。
-        // selectedIndex是什么？
-        // selectedIndex是一个变量，用来记录当前选中的导航栏目录的索引。
-        // 当selectedIndex为0时，显示GeneratorPage，当selectedIndex为1时，显示一个占位符。
-        // 怎么知道选中的某个导航栏目录的索引？
-        // 通过NavigationRail的selectedIndex属性来控制。
-        // 能具体讲讲NavigationRail的selectedIndex属性的控制过程吗
-        // NavigationRail的selectedIndex属性是一个int类型的值，用来记录当前选中的导航栏目录的索引。
-        // 当用户点击某个导航栏目录时，会触发onDestinationSelected回调，这个回调会传入一个int类型的值，这个值就是当前选中的导航栏目录的索引。
+        page = FavoritesPage();  
         break;
       default:
     throw UnimplementedError('no widget for $selectedIndex');
@@ -188,9 +188,7 @@ class GeneratorPage extends StatelessWidget {
           SizedBox(height: 10),
           Row(
             mainAxisSize: MainAxisSize.min,
-
             children: [
-
               ElevatedButton.icon(
                 onPressed: () {
                   appState.toggleFavorite();
@@ -199,6 +197,13 @@ class GeneratorPage extends StatelessWidget {
                 label: Text('Like'),
               ),
 
+              SizedBox(width: 10),
+              ElevatedButton(
+                onPressed:(){
+                  appState.getLast();
+                },
+                child:Text('Last'),
+              ),
               SizedBox(width: 10),
 
               ElevatedButton(
